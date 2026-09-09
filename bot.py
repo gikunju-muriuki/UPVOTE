@@ -17,7 +17,6 @@ if not MY_PRIVATE_POSTING_KEY:
 
 # Initialize lightsteem connection correctly
 try:
-    # Pass keys directly into the main Client instantiation
     client = Client(
         nodes=["https://api.steemit.com"],
         keys=[MY_PRIVATE_POSTING_KEY]
@@ -33,14 +32,18 @@ if os.path.exists(HISTORY_FILE):
         voted_history = set(line.strip() for line in f if line.strip())
 
 def get_latest_post(author):
-    """Fetches the latest post data using fallback public RPC nodes from the browser bot."""
+    """Fetches the absolute latest post from an author's live blog feed."""
     payload = {
         "jsonrpc": "2.0",
-        "method": "condenser_api.get_discussions_by_author_before_date",
-        "params": [author, "", "2026-12-31T23:59:59", 1],
+        "method": "bridge.get_account_posts",
+        "params": {
+            "sort": "blog",
+            "account": author,
+            "limit": 1
+        },
         "id": 1
     }
-    # These match the working nodes shown in your screenshot
+    
     nodes = [
         "https://api.steemit.com",
         "https://api.moecki.online",
@@ -50,13 +53,12 @@ def get_latest_post(author):
     
     for url in nodes:
         try:
-            # Added a user-agent header to look like a standard web browser request
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 if data.get("result") and len(data["result"]) > 0:
-                    # Explicitly return the first post dictionary from the list
+                    # Return the single latest post object from the list
                     return data["result"][0]
         except Exception as e:
             print(f"Node {url} failed: {e}")
@@ -74,15 +76,19 @@ for author in TARGET_AUTHORS:
         continue
         
     permlink = post.get("permlink")
-    if not permlink:
-        print(f"Could not extract permlink for {author}.")
+    author_of_post = post.get("author")
+    
+    if not permlink or not author_of_post:
+        print(f"Could not extract structural data details for {author}.")
         continue
         
-    post_identifier = f"@{author}/{permlink}"
+    post_identifier = f"@{author_of_post}/{permlink}"
     
-    # Verify if it's a root post (not a comment reply) and hasn't been voted on yet
-    if post.get("parent_author") == "" and post_identifier not in voted_history:
-        print(f"New post found: {post_identifier}. Attempting to upvote...")
+    # Ensure this is a root post authored by your target and not a re-blog/comment
+    is_original_post = (author_of_post.lower() == author.lower())
+    
+    if is_original_post and post_identifier not in voted_history:
+        print(f"New original post detected: {post_identifier}. Triggering upvote process...")
         
         try:
             # Broadcast format (Weight is scaled 0 to 10000; 100% = 10000)
@@ -90,7 +96,7 @@ for author in TARGET_AUTHORS:
             
             client.broadcast.vote(
                 voter=MY_ACCOUNT,
-                author=author,
+                author=author_of_post,
                 permlink=permlink,
                 weight=scaled_weight
             )
@@ -100,9 +106,10 @@ for author in TARGET_AUTHORS:
         except Exception as e:
             print(f"Voting failed for {post_identifier}: {e}")
     else:
-        print(f"Post {post_identifier} already processed or is a comment reply.")
-
-
+        if not is_original_post:
+            print(f"Skipping: Last item found for {author} is a reblog or comment reply.")
+        else:
+            print(f"Post {post_identifier} has already been processed in a previous cycle.")
 
 # Save history if we performed updates
 if updated_history:
