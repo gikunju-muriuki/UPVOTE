@@ -1,7 +1,6 @@
 import os
 import requests
 from lightsteem.client import Client
-from lightsteem.broadcast import Broadcast
 
 # 1. Configuration variables
 MY_ACCOUNT = "gikunju"  
@@ -16,10 +15,13 @@ if not MY_PRIVATE_POSTING_KEY:
     print("Error: STEEM_POSTING_KEY secret is missing!")
     exit(1)
 
-# Initialize Steem connection
+# Initialize lightsteem connection correctly
 try:
-    s = Steem(keys=[MY_PRIVATE_POSTING_KEY])
-    commit = Commit(steem_instance=s)
+    # Pass keys directly into the main Client instantiation
+    client = Client(
+        nodes=["https://api.steemit.com"],
+        keys=[MY_PRIVATE_POSTING_KEY]
+    )
 except Exception as e:
     print(f"Error initializing Steem connection: {e}")
     exit(1)
@@ -42,6 +44,7 @@ def get_latest_post(author):
         response = requests.post("https://api.steemit.com", json=payload, timeout=10)
         data = response.json()
         if data.get("result"):
+            # Ensure we safely grab the first post element from the array
             return data["result"][0]
     except Exception as e:
         print(f"Failed to fetch data for {author}: {e}")
@@ -63,10 +66,15 @@ for author in TARGET_AUTHORS:
         print(f"New post found: {post_identifier}. Attempting to upvote...")
         
         try:
-            commit.vote(
-                identifier=post_identifier,
-                weight=VOTE_WEIGHT,
-                account=MY_ACCOUNT
+            # Broadcast format (Weight is scaled 0 to 10000; 100% = 10000)
+            scaled_weight = int(VOTE_WEIGHT * 100)
+            
+            # Use the integrated broadcast helper from the client object
+            client.broadcast.vote(
+                voter=MY_ACCOUNT,
+                author=author,
+                permlink=permlink,
+                weight=scaled_weight
             )
             print(f"Successfully upvoted {post_identifier}!")
             voted_history.add(post_identifier)
