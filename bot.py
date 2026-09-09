@@ -41,7 +41,7 @@ def get_latest_post(author):
         "id": 1
     }
     try:
-        response = requests.post("https://steemit.com", json=payload, timeout=10)
+        response = requests.post("https://api.steemit.com", json=payload, timeout=10)
         data = response.json()
         if data.get("result") and len(data["result"]) > 0:
             # Grab the first element from the array (index 0)
