@@ -2,14 +2,13 @@ name: Steem Auto-Vote Bot
 
 on:
   schedule:
-    # This runs the bot every 30 minutes. You can adjust this timing.
-    - cron: '*/30 * * * *'
-  workflow_dispatch: # Allows you to manually click a button to test run it anytime
+    # This instructs GitHub to run the script every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Keeps manual execution enabled for testing
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout Repository Code
       uses: actions/checkout@v4
