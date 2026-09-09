@@ -5,8 +5,8 @@ from steem import Steem  # If utilizing full framework
 from steem.commit import Commit
 
 # 1. Configuration variables
-MY_ACCOUNT = "your_steem_username"  # <-- Change to your username
-TARGET_AUTHORS = ["target_user_1", "target_user_2"]  # <-- Authors to track
+MY_ACCOUNT = "gikunju"  
+TARGET_AUTHORS = ["bnwt"]
 VOTE_WEIGHT = 100.0  # 100.0 = 100% vote weight
 HISTORY_FILE = "voted_posts.txt"
 
@@ -40,7 +40,7 @@ def get_latest_post(author):
         "id": 1
     }
     try:
-        response = requests.post("https://steemit.com", json=payload, timeout=10)
+        response = requests.post("https://api.steemit.com", json=payload, timeout=10)
         data = response.json()
         if data.get("result"):
             return data["result"][0]
