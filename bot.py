@@ -33,21 +33,31 @@ if os.path.exists(HISTORY_FILE):
         voted_history = set(line.strip() for line in f if line.strip())
 
 def get_latest_post(author):
-    """Fetches the absolute latest post data for a given author via Steem RPC."""
+    """Fetches the latest post data using fallback public RPC nodes."""
     payload = {
         "jsonrpc": "2.0",
         "method": "condenser_api.get_discussions_by_author_before_date",
         "params": [author, "", "2026-12-31T23:59:59", 1],
         "id": 1
     }
-    try:
-        response = requests.post("https://api.steemit.com", json=payload, timeout=10)
-        data = response.json()
-        if data.get("result") and len(data["result"]) > 0:
-            # Grab the first element from the array (index 0)
-            return data["result"][0]
-    except Exception as e:
-        print(f"Failed to fetch data for {author}: {e}")
+    # List of reliable alternative Steem RPC servers
+    nodes = [
+        "https://steemit.com",
+        "https://hive.fans",
+        "https://justyy.com"
+    ]
+    
+    for url in nodes:
+        try:
+            response = requests.post(url, json=payload, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("result") and len(data["result"]) > 0:
+                    # Index 0 extracts the first dictionary object out of the list
+                    return data["result"][0]
+        except Exception as e:
+            print(f"Node {url} failed: {e}")
+            continue
     return None
 
 # 3. Execution Logic
