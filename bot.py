@@ -1,8 +1,7 @@
 import os
-import time
 import requests
-from steem import Steem  # If utilizing full framework
-from steem.commit import Commit
+from lightsteem.client import Client
+from lightsteem.broadcast import Broadcast
 
 # 1. Configuration variables
 MY_ACCOUNT = "gikunju"  
