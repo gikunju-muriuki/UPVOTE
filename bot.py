@@ -40,11 +40,11 @@ def get_latest_post(author):
         "params": [author, "", "2026-12-31T23:59:59", 1],
         "id": 1
     }
-    # These are currently the most reliable and active nodes on the Steem network
+    # Verified public endpoints 
     nodes = [
-        "https://moearena.com",
+        "https://api.steemit.com",
         "https://steemitdev.com",
-        "https://steemit.com"
+        "https://moearena.com"
     ]
     
     for url in nodes:
@@ -53,13 +53,13 @@ def get_latest_post(author):
             if response.status_code == 200:
                 data = response.json()
                 if data.get("result") and len(data["result"]) > 0:
-                    # Index 0 safely extracts the post dictionary object
+                    # Explicitly return the first post dictionary from the list
                     return data["result"][0]
         except Exception as e:
             print(f"Node {url} failed: {e}")
             continue
     return None
-    
+
 # 3. Execution Logic
 updated_history = False
 
@@ -69,7 +69,11 @@ for author in TARGET_AUTHORS:
         print(f"Could not retrieve any posts for {author}.")
         continue
         
-    permlink = post["permlink"]
+    permlink = post.get("permlink")
+    if not permlink:
+        print(f"Could not extract permlink for {author}.")
+        continue
+        
     post_identifier = f"@{author}/{permlink}"
     
     # Verify if it's a root post (not a comment reply) and hasn't been voted on yet
@@ -93,6 +97,7 @@ for author in TARGET_AUTHORS:
             print(f"Voting failed for {post_identifier}: {e}")
     else:
         print(f"Post {post_identifier} already processed or is a comment reply.")
+
 
 
 # Save history if we performed updates
