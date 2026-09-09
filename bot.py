@@ -32,7 +32,7 @@ if os.path.exists(HISTORY_FILE):
         voted_history = set(line.strip() for line in f if line.strip())
 
 def get_latest_post(author):
-    """Fetches the absolute latest post from an author's live blog feed."""
+    """Fetches the absolute latest post object from an author's live blog feed."""
     payload = {
         "jsonrpc": "2.0",
         "method": "bridge.get_account_posts",
@@ -46,9 +46,9 @@ def get_latest_post(author):
     
     nodes = [
         "https://api.steemit.com",
-        "https://api.moecki.online",
-        "https://api.justyy.com",
-        "https://api.amarbangla.net"
+        "https://moecki.online",
+        "https://justyy.com",
+        "https://amarbangla.net"
     ]
     
     for url in nodes:
@@ -58,7 +58,7 @@ def get_latest_post(author):
             if response.status_code == 200:
                 data = response.json()
                 if data.get("result") and len(data["result"]) > 0:
-                    # Return the single latest post object from the list
+                    # FIXED: Extract index 0 immediately to return the dictionary object
                     return data["result"][0]
         except Exception as e:
             print(f"Node {url} failed: {e}")
@@ -80,11 +80,12 @@ for author in TARGET_AUTHORS:
     
     if not permlink or not author_of_post:
         print(f"Could not extract structural data details for {author}.")
+        print(f"Debug post structure: {post}")
         continue
         
     post_identifier = f"@{author_of_post}/{permlink}"
     
-    # Ensure this is a root post authored by your target and not a re-blog/comment
+    # Ensure this is an original post authored by your target and not a re-blog/comment
     is_original_post = (author_of_post.lower() == author.lower())
     
     if is_original_post and post_identifier not in voted_history:
