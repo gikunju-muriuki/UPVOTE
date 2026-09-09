@@ -33,23 +33,26 @@ if os.path.exists(HISTORY_FILE):
         voted_history = set(line.strip() for line in f if line.strip())
 
 def get_latest_post(author):
-    """Fetches the latest post data using fallback public RPC nodes."""
+    """Fetches the latest post data using fallback public RPC nodes from the browser bot."""
     payload = {
         "jsonrpc": "2.0",
         "method": "condenser_api.get_discussions_by_author_before_date",
         "params": [author, "", "2026-12-31T23:59:59", 1],
         "id": 1
     }
-    # Verified public endpoints 
+    # These match the working nodes shown in your screenshot
     nodes = [
         "https://api.steemit.com",
-        "https://steemitdev.com",
-        "https://moearena.com"
+        "https://api.moecki.online",
+        "https://api.justyy.com",
+        "https://api.amarbangla.net"
     ]
     
     for url in nodes:
         try:
-            response = requests.post(url, json=payload, timeout=10)
+            # Added a user-agent header to look like a standard web browser request
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 if data.get("result") and len(data["result"]) > 0:
@@ -59,6 +62,7 @@ def get_latest_post(author):
             print(f"Node {url} failed: {e}")
             continue
     return None
+
 
 # 3. Execution Logic
 updated_history = False
