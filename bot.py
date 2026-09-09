@@ -41,10 +41,10 @@ def get_latest_post(author):
         "id": 1
     }
     try:
-        response = requests.post("https://api.steemit.com", json=payload, timeout=10)
+        response = requests.post("https://steemit.com", json=payload, timeout=10)
         data = response.json()
-        if data.get("result"):
-            # Ensure we safely grab the first post element from the array
+        if data.get("result") and len(data["result"]) > 0:
+            # Grab the first element from the array (index 0)
             return data["result"][0]
     except Exception as e:
         print(f"Failed to fetch data for {author}: {e}")
@@ -56,6 +56,7 @@ updated_history = False
 for author in TARGET_AUTHORS:
     post = get_latest_post(author)
     if not post:
+        print(f"Could not retrieve any posts for {author}.")
         continue
         
     permlink = post["permlink"]
@@ -69,7 +70,6 @@ for author in TARGET_AUTHORS:
             # Broadcast format (Weight is scaled 0 to 10000; 100% = 10000)
             scaled_weight = int(VOTE_WEIGHT * 100)
             
-            # Use the integrated broadcast helper from the client object
             client.broadcast.vote(
                 voter=MY_ACCOUNT,
                 author=author,
@@ -82,7 +82,8 @@ for author in TARGET_AUTHORS:
         except Exception as e:
             print(f"Voting failed for {post_identifier}: {e}")
     else:
-        print(f"No new posts found for {author} (or already upvoted).")
+        print(f"Post {post_identifier} already processed or is a comment reply.")
+
 
 # Save history if we performed updates
 if updated_history:
