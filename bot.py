@@ -40,11 +40,11 @@ def get_latest_post(author):
         "params": [author, "", "2026-12-31T23:59:59", 1],
         "id": 1
     }
-    # List of reliable alternative Steem RPC servers
+    # These are currently the most reliable and active nodes on the Steem network
     nodes = [
-        "https://steemit.com",
-        "https://hive.fans",
-        "https://justyy.com"
+        "https://moearena.com",
+        "https://steemitdev.com",
+        "https://steemit.com"
     ]
     
     for url in nodes:
@@ -53,13 +53,13 @@ def get_latest_post(author):
             if response.status_code == 200:
                 data = response.json()
                 if data.get("result") and len(data["result"]) > 0:
-                    # Index 0 extracts the first dictionary object out of the list
+                    # Index 0 safely extracts the post dictionary object
                     return data["result"][0]
         except Exception as e:
             print(f"Node {url} failed: {e}")
             continue
     return None
-
+    
 # 3. Execution Logic
 updated_history = False
 
