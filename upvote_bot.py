@@ -1,6 +1,7 @@
 import os
 from beem import Steem
 from beem.account import Account
+from beem.comment import Comment
 
 # 1. Configuration
 MY_ACCOUNT = "gikunju"            # Your Steem account name
@@ -29,21 +30,23 @@ try:
         print(f"No posts found for account @{TARGET_AUTHOR}.")
         exit(0)
         
+    # blog_history[0] is a Comment object. Extract properties directly.
     latest_post = blog_history[0]
-    post_author = latest_post['author']
-    post_permlink = latest_post['permlink']
-    identifier = f"@{post_author}/{post_permlink}"
+    author = latest_post.author
+    permlink = latest_post.permlink
+    identifier = f"@{author}/{permlink}"
     
     print(f"Analyzing latest post: {identifier}")
     
-    # Check if you have already upvoted by reading active_votes dictionary safely
-    voted_users = [v['voter'] for v in latest_post.get('active_votes', [])]
+    # Check if you have already upvoted by scanning the active_votes property
+    # Each vote entry inside active_votes is a dictionary containing the 'voter' key
+    voters = [v['voter'] for v in latest_post.get('active_votes', [])]
     
-    if MY_ACCOUNT in voted_users:
+    if MY_ACCOUNT in voters:
         print(f"Skipping. You have already upvoted this post.")
     else:
         print(f"New post detected! Upvoting with {VOTE_WEIGHT}% power...")
-        # Direct broadcast via the initialized client wrapper
+        # Direct broadcast vote via the client engine using the string identifier
         stm.vote(identifier, VOTE_WEIGHT, account=MY_ACCOUNT)
         print("Upvote successfully broadcasted.")
 
