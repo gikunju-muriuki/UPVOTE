@@ -5,8 +5,8 @@ from beem.comment import Comment
 
 # 1. Configuration
 MY_ACCOUNT = "gikunju"            # Your Steem account name
-TARGET_AUTHOR = "bnwt"  # The account you want to auto-upvote
-VOTE_WEIGHT = 100.0            # Vote weight percentage (1.0 to 100.0)
+TARGET_AUTHOR = "bnwt"            # The account you want to auto-upvote
+VOTE_WEIGHT = 100                 # FIX: Defined weight as integer (1 to 100)
 PROXY_URL = "https://steem-proxy.gikunju.workers.dev"
 
 # 2. Extract Key from GitHub Secrets
@@ -30,7 +30,7 @@ try:
         print(f"No posts found for account @{TARGET_AUTHOR}.")
         exit(0)
         
-    # blog_history[0] is a Comment object. Extract properties directly.
+    # extract the first object instance from the history list array
     latest_post = blog_history[0]
     author = latest_post.author
     permlink = latest_post.permlink
@@ -38,16 +38,21 @@ try:
     
     print(f"Analyzing latest post: {identifier}")
     
-    # Check if you have already upvoted by scanning the active_votes property
-    # Each vote entry inside active_votes is a dictionary containing the 'voter' key
-    voters = [v['voter'] for v in latest_post.get('active_votes', [])]
+    # Safely pull the active votes using property access methods
+    voters = []
+    if hasattr(latest_post, 'active_votes') and latest_post.active_votes:
+        voters = [v['voter'] for v in latest_post.active_votes]
     
     if MY_ACCOUNT in voters:
         print(f"Skipping. You have already upvoted this post.")
     else:
         print(f"New post detected! Upvoting with {VOTE_WEIGHT}% power...")
-        # Direct broadcast vote via the client engine using the string identifier
-        stm.vote(identifier, VOTE_WEIGHT, account=MY_ACCOUNT)
+        
+        # Instantiate a robust Comment target instance
+        target_comment = Comment(identifier, blockchain_instance=stm)
+        
+        # FIX: Broadcast via the native object module wrapper
+        target_comment.upvote(weight=VOTE_WEIGHT, voter=MY_ACCOUNT)
         print("Upvote successfully broadcasted.")
 
 except Exception as e:
