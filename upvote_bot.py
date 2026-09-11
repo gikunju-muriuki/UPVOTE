@@ -43,13 +43,14 @@ try:
     # Extract the list of everyone who already voted
     voters = [v['voter'] for v in comment.get_votes()]
     
-    if MY_ACCOUNT in voters:
+        if MY_ACCOUNT in voters:
         print(f"Skipping. You have already upvoted this post.")
     else:
         print(f"New post detected! Upvoting with {VOTE_WEIGHT}% power...")
-        # Broadcast the vote operation securely
-        comment.upvote(weight=VOTE_WEIGHT, account=MY_ACCOUNT)
+        # FIX: Changed 'account=' to 'voter='
+        comment.upvote(weight=VOTE_WEIGHT, voter=MY_ACCOUNT)
         print("Upvote successfully broadcasted.")
+
 
 except Exception as e:
     print(f"CRITICAL ERROR: {e}")
