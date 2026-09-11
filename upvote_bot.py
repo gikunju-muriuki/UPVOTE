@@ -1,11 +1,10 @@
 import os
 from beem import Steem
 from beem.account import Account
-from beem.comment import Comment
 
 # 1. Configuration
 MY_ACCOUNT = "bnwt"            # Your Steem account name
-TARGET_AUTHOR = "bnwt"  # The account you want to auto-upvote
+TARGET_AUTHOR = "targetusername"  # The account you want to auto-upvote
 VOTE_WEIGHT = 100.0            # Vote weight percentage (1.0 to 100.0)
 PROXY_URL = "https://steem-proxy.gikunju.workers.dev"
 
@@ -37,20 +36,16 @@ try:
     
     print(f"Analyzing latest post: {identifier}")
     
-    # Load the post details to check current voters
-    comment = Comment(identifier, blockchain_instance=stm)
+    # Check if you have already upvoted by reading active_votes dictionary safely
+    voted_users = [v['voter'] for v in latest_post.get('active_votes', [])]
     
-    # Extract the list of everyone who already voted
-    voters = [v['voter'] for v in comment.get_votes()]
-    
-        if MY_ACCOUNT in voters:
+    if MY_ACCOUNT in voted_users:
         print(f"Skipping. You have already upvoted this post.")
     else:
         print(f"New post detected! Upvoting with {VOTE_WEIGHT}% power...")
-        # FIX: Changed 'account=' to 'voter='
-        comment.upvote(weight=VOTE_WEIGHT, voter=MY_ACCOUNT)
+        # Direct broadcast via the initialized client wrapper
+        stm.vote(identifier, VOTE_WEIGHT, account=MY_ACCOUNT)
         print("Upvote successfully broadcasted.")
-
 
 except Exception as e:
     print(f"CRITICAL ERROR: {e}")
