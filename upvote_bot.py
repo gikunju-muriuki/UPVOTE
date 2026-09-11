@@ -3,8 +3,8 @@ from beem import Steem
 from beem.account import Account
 
 # 1. Configuration
-MY_ACCOUNT = "bnwt"            # Your Steem account name
-TARGET_AUTHOR = "targetusername"  # The account you want to auto-upvote
+MY_ACCOUNT = "gikunju"            # Your Steem account name
+TARGET_AUTHOR = "bnwt"  # The account you want to auto-upvote
 VOTE_WEIGHT = 100.0            # Vote weight percentage (1.0 to 100.0)
 PROXY_URL = "https://steem-proxy.gikunju.workers.dev"
 
