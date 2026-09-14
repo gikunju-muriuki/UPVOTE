@@ -2,8 +2,8 @@ name: Steem Automatic Upvote Bot
 
 on:
   schedule:
-    # Runs every 10 minutes
-    - cron: '*/10 * * * *'
+    # Runs at 12:10 AM EAT
+    - cron: '10 09 * * *'
   workflow_dispatch: # Allows manual verification tests via the UI button
 
 jobs:
