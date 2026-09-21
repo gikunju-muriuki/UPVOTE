@@ -5,7 +5,7 @@ from beem.comment import Comment
 
 # 1. Configuration
 MY_ACCOUNT = "gikunju"            # Your Steem account name
-TARGET_AUTHOR = "bnwt"            # The account you want to auto-upvote
+TARGET_AUTHOR = "blog.god"            # The account you want to auto-upvote
 VOTE_WEIGHT = 100                 # FIX: Defined weight as integer (1 to 100)
 PROXY_URL = "https://steem-proxy.gikunju.workers.dev"
 
