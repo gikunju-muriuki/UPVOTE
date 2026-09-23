@@ -2,6 +2,21 @@ import os
 from beem import Steem
 from beem.account import Account
 from beem.comment import Comment
+import time    # 👈 ADD THIS ON LINE 5
+import random  # 👈 ADD THIS ON LINE 6
+
+# =========================================================================
+# GITHUB ACTIONS RUNTIME DELAY BUFFER
+# =========================================================================
+# Wait 30 minutes to ensure the post bot finishes its random delay window.
+# Then add a tiny random human jitter (1 to 3 minutes).
+upvote_jitter = random.randint(60, 180)
+total_delay_seconds = (30 * 60) + upvote_jitter
+
+print(f"Post verification handshake initialized...")
+print(f"Waiting {total_delay_seconds / 60:.1f} minutes to guarantee the post is live on the blockchain...")
+time.sleep(total_delay_seconds)
+# =========================================================================
 
 # 1. Configuration
 MY_ACCOUNT = "gikunju"            # Your Steem account name
