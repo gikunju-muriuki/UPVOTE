@@ -11,7 +11,7 @@ import random  # 👈 ADD THIS ON LINE 6
 # Wait 30 minutes to ensure the post bot finishes its random delay window.
 # Then add a tiny random human jitter (1 to 3 minutes).
 upvote_jitter = random.randint(60, 180)
-total_delay_seconds = (30 * 60) + upvote_jitter
+total_delay_seconds = (18 * 60) + upvote_jitter
 
 print(f"Post verification handshake initialized...")
 print(f"Waiting {total_delay_seconds / 60:.1f} minutes to guarantee the post is live on the blockchain...")
