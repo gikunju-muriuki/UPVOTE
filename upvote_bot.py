@@ -2,8 +2,8 @@ import os
 from beem import Steem
 from beem.account import Account
 from beem.comment import Comment
-import time    # 👈 ADD THIS ON LINE 5
-import random  # 👈 ADD THIS ON LINE 6
+import time  
+import random  
 
 # =========================================================================
 # GITHUB ACTIONS RUNTIME DELAY BUFFER
