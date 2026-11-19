@@ -6,7 +6,7 @@ import time
 import random  
 
 # =========================================================================
-# GITHUB ACTIONS RUNTIME DELAY BUFFER
+# GITHUB ACTIONS RUNTIME DELAY BUFFER.
 # =========================================================================
 # Wait 30 minutes to ensure the post bot finishes its random delay window.
 # Then add a tiny random human jitter (1 to 3 minutes).
