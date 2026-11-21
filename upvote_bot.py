@@ -8,7 +8,7 @@ from beem.comment import Comment
 # =========================================================================
 # GITHUB ACTIONS RUNTIME DELAY BUFFER
 # =========================================================================
-upvote_jitter = random.randint(1, 3)
+upvote_jitter = random.randint(0, 0)
 total_delay_seconds = (1 * 1) + upvote_jitter
 
 print("Post verification handshake initialized...")
